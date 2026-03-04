@@ -393,16 +393,7 @@ def create_gradio_app() -> gr.Blocks:
         Gradio Blocks app ready to launch
     """
     
-    with gr.Blocks(
-        title="PixelNur - Advanced Steganography",
-        theme=gr.themes.Soft(
-            primary_hue="indigo",
-            secondary_hue="purple",
-            neutral_hue="slate",
-            font=["Inter", "ui-sans-serif", "system-ui", "sans-serif"]
-        ),
-        css=CUSTOM_CSS
-    ) as app:
+    with gr.Blocks(title="PixelNur - Advanced Steganography") as app:
         
         # Header
         gr.Markdown("""
@@ -694,5 +685,13 @@ def create_gradio_app() -> gr.Blocks:
 # Launch the app
 if __name__ == "__main__":
     app = create_gradio_app()
-    app.launch()
+    app.launch(
+        theme=gr.themes.Soft(
+            primary_hue="indigo",
+            secondary_hue="purple",
+            neutral_hue="slate"
+        ),
+        css=CUSTOM_CSS
+    )
+
 
