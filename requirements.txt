@@ -1,8 +1,5 @@
 # PixelNur Phase 2 - Hugging Face Spaces Dependencies
-# Optimized for deployment on Hugging Face Spaces
-
-# Gradio (explicitly specify version to avoid audioop issue)
-gradio==5.9.1
+# Gradio is automatically installed by HF Spaces
 
 # Core Dependencies
 numpy>=1.24.0
