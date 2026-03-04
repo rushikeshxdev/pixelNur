@@ -2,6 +2,9 @@
 # Optimized for deployment on Hugging Face Spaces
 # Note: Gradio is provided by HF Spaces (gradio[oauth]==4.0.0)
 
+# Python 3.13 Compatibility
+pyaudioop>=1.0.0
+
 # Core Dependencies
 numpy>=1.24.0
 scipy>=1.10.0
