@@ -1,8 +1,6 @@
 # PixelNur Phase 2 - Hugging Face Spaces Dependencies
 # Optimized for deployment on Hugging Face Spaces
-
-# Gradio Web Interface - Using stable version 5.x
-gradio==5.9.1
+# Note: Gradio is provided by HF Spaces (gradio[oauth]==4.0.0)
 
 # Core Dependencies
 numpy>=1.24.0
