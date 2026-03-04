@@ -14,6 +14,8 @@ import cv2
 import torch
 import logging
 import sys
+import os
+import tempfile
 from typing import Tuple, Optional
 
 # Import Phase 2 modules
@@ -120,7 +122,7 @@ def embed_interface(
     message: str,
     password: str,
     robustness_level: str
-) -> Tuple[Optional[np.ndarray], str, str, str]:
+) -> Tuple[Optional[str], str, str, str]:
     """
     Gradio interface function for embedding.
     
@@ -131,7 +133,7 @@ def embed_interface(
         robustness_level: Robustness level string from dropdown
     
     Returns:
-        Tuple of (stego_image, psnr_text, ssim_text, capacity_text)
+        Tuple of (stego_file_path, psnr_text, ssim_text, capacity_text)
     """
     try:
         # Validate inputs
@@ -166,8 +168,9 @@ def embed_interface(
             check_capacity=True
         )
         
-        # Convert BGR to RGB for Gradio
-        stego_rgb = cv2.cvtColor(stego_bgr, cv2.COLOR_BGR2RGB)
+        # Save as PNG file to preserve LSB data
+        output_path = os.path.join(tempfile.gettempdir(), "pixelnur_stego.png")
+        cv2.imwrite(output_path, stego_bgr)
         
         # Format outputs
         psnr_text = f"✅ PSNR: {metrics['psnr']:.2f} dB"
@@ -180,10 +183,10 @@ def embed_interface(
         
         logger.info(
             f"Embed success: psnr={metrics['psnr']:.2f}, "
-            f"ssim={metrics['ssim']:.4f}"
+            f"ssim={metrics['ssim']:.4f}, saved to={output_path}"
         )
         
-        return stego_rgb, psnr_text, ssim_text, capacity_text
+        return output_path, psnr_text, ssim_text, capacity_text
         
     except InsufficientCapacityError as e:
         logger.warning(f"Capacity error: {str(e)}")
@@ -312,10 +315,9 @@ def create_gradio_app() -> gr.Blocks:
                         embed_button = gr.Button("🔒 Embed Message", variant="primary")
                     
                     with gr.Column():
-                        stego_image = gr.Image(
-                            label="Stego Image (Download this!)",
-                            type="numpy",
-                            height=300
+                        stego_file = gr.File(
+                            label="📥 Download Stego Image (PNG)",
+                            file_count="single"
                         )
                         psnr_output = gr.Textbox(label="PSNR (Image Quality)", interactive=False)
                         ssim_output = gr.Textbox(label="SSIM (Structural Similarity)", interactive=False)
@@ -324,7 +326,7 @@ def create_gradio_app() -> gr.Blocks:
                 embed_button.click(
                     fn=embed_interface,
                     inputs=[embed_image, embed_message, embed_password, embed_robustness],
-                    outputs=[stego_image, psnr_output, ssim_output, capacity_output]
+                    outputs=[stego_file, psnr_output, ssim_output, capacity_output]
                 )
             
             # Extract Tab
@@ -334,7 +336,7 @@ def create_gradio_app() -> gr.Blocks:
                 with gr.Row():
                     with gr.Column():
                         extract_image = gr.Image(
-                            label="Stego Image",
+                            label="Stego Image (Upload the downloaded PNG file)",
                             type="numpy",
                             height=300
                         )
@@ -368,10 +370,10 @@ def create_gradio_app() -> gr.Blocks:
         2. Enter your secret message
         3. Create a strong password (minimum 16 characters)
         4. Select robustness level based on your needs
-        5. Click "Embed Message" and download the stego image
+        5. Click "Embed Message" and **download the PNG file**
         
         **Extraction:**
-        1. Upload the stego image
+        1. **Upload the downloaded PNG file** (not a screenshot!)
         2. Enter the same password used during embedding
         3. Click "Extract Message" to reveal the hidden text
         
@@ -386,7 +388,8 @@ def create_gradio_app() -> gr.Blocks:
         **⚠️ Important Notes:**
         - Keep your password secure - it cannot be recovered if lost
         - Higher robustness levels reduce available capacity
-        - Do not re-save or edit the stego image (use PNG for lossless storage)
+        - **CRITICAL**: You must download and use the PNG file for extraction - do not take screenshots or re-save the image
+        - LSB steganography does NOT increase file size (it modifies existing pixels)
         - This is a research prototype - use at your own risk
         
         **🔗 Links:**
