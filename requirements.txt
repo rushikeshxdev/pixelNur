@@ -2,7 +2,7 @@
 # Optimized for deployment on Hugging Face Spaces
 
 # Gradio Web Interface - Using stable version 5.x
-gradio>=5.0.0
+gradio==5.9.1
 
 # Core Dependencies
 numpy>=1.24.0
