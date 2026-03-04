@@ -34,15 +34,136 @@ logger = logging.getLogger('pixelnur-gradio')
 
 # Constants
 ROBUSTNESS_LEVELS = {
-    "None (0) - Best quality, no attack resistance": "none",
-    "Low (1) - Light ECC, minor attack resistance": "low",
-    "Medium (2) - Moderate ECC + replication": "medium",
-    "High (3) - Maximum protection, lower capacity": "high"
+    "🌟 None (0) - Best quality, no attack resistance": "none",
+    "🛡️ Low (1) - Light ECC, minor attack resistance": "low",
+    "🔒 Medium (2) - Moderate ECC + replication": "medium",
+    "🔐 High (3) - Maximum protection, lower capacity": "high"
 }
 
 MIN_PASSWORD_LENGTH = 16
 MIN_IMAGE_SIZE = 256
 MAX_IMAGE_SIZE = 2048  # For Gradio deployment
+
+# Custom CSS for beautiful UI
+CUSTOM_CSS = """
+/* Main container styling */
+.gradio-container {
+    font-family: 'Inter', 'Segoe UI', sans-serif !important;
+}
+
+/* Header gradient */
+.header-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 2rem;
+    border-radius: 1rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+}
+
+/* Tab styling */
+.tab-nav button {
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+    padding: 1rem 2rem !important;
+    border-radius: 0.5rem !important;
+    transition: all 0.3s ease !important;
+}
+
+.tab-nav button[aria-selected="true"] {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+}
+
+/* Button styling */
+.primary-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    border: none !important;
+    color: white !important;
+    font-weight: 600 !important;
+    padding: 0.75rem 2rem !important;
+    border-radius: 0.5rem !important;
+    font-size: 1.1rem !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4) !important;
+}
+
+.primary-button:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6) !important;
+}
+
+/* Input field styling */
+.input-field {
+    border-radius: 0.5rem !important;
+    border: 2px solid #e0e7ff !important;
+    transition: all 0.3s ease !important;
+}
+
+.input-field:focus {
+    border-color: #667eea !important;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+}
+
+/* Card styling */
+.metric-card {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 1rem;
+    border-radius: 0.75rem;
+    margin: 0.5rem 0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Image upload area */
+.image-upload {
+    border: 3px dashed #667eea !important;
+    border-radius: 1rem !important;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e0e7ff 100%) !important;
+    transition: all 0.3s ease !important;
+}
+
+.image-upload:hover {
+    border-color: #764ba2 !important;
+    background: linear-gradient(135deg, #e0e7ff 0%, #f5f7fa 100%) !important;
+}
+
+/* Info box styling */
+.info-box {
+    background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    border-left: 5px solid #fdcb6e;
+    margin: 1rem 0;
+    box-shadow: 0 4px 15px rgba(253, 203, 110, 0.3);
+}
+
+/* Success message */
+.success-box {
+    background: linear-gradient(135deg, #55efc4 0%, #00b894 100%);
+    color: white;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin: 0.5rem 0;
+}
+
+/* Feature badge */
+.feature-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    margin: 0.25rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+/* Accordion styling */
+.accordion {
+    border-radius: 0.75rem !important;
+    overflow: hidden !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
+}
+"""
 
 # Initialize PixelNur system
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -272,56 +393,128 @@ def create_gradio_app() -> gr.Blocks:
         Gradio Blocks app ready to launch
     """
     
-    with gr.Blocks(title="PixelNur Phase 2 - Steganography System") as app:
+    with gr.Blocks(
+        title="PixelNur - Advanced Steganography",
+        theme=gr.themes.Soft(
+            primary_hue="indigo",
+            secondary_hue="purple",
+            neutral_hue="slate",
+            font=["Inter", "ui-sans-serif", "system-ui", "sans-serif"]
+        ),
+        css=CUSTOM_CSS
+    ) as app:
+        
+        # Header
         gr.Markdown("""
-        # 🔒 PixelNur Phase 2 - CNN-Based Steganography
-        
-        Hide secret messages in images using advanced steganography with CNN-based adaptive embedding.
-        
-        **Features:**
-        - 🎯 High image quality (PSNR >40 dB, SSIM >0.99)
-        - 🛡️ Configurable robustness against attacks
-        - 🔐 Strong encryption (SHA-256 + XOR)
-        - 🚀 GPU-accelerated processing
+        <div style="text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 3rem 2rem; border-radius: 1rem; margin-bottom: 2rem; box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);">
+            <h1 style="color: white; font-size: 3rem; margin-bottom: 1rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.2);">
+                🔒 PixelNur Phase 2
+            </h1>
+            <p style="color: rgba(255,255,255,0.95); font-size: 1.3rem; margin-bottom: 1.5rem;">
+                Advanced CNN-Based Steganography System
+            </p>
+            <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+                <span style="background: rgba(255,255,255,0.2); padding: 0.5rem 1.5rem; border-radius: 2rem; color: white; font-weight: 600;">
+                    🎯 PSNR >40 dB
+                </span>
+                <span style="background: rgba(255,255,255,0.2); padding: 0.5rem 1.5rem; border-radius: 2rem; color: white; font-weight: 600;">
+                    🛡️ Attack Resistant
+                </span>
+                <span style="background: rgba(255,255,255,0.2); padding: 0.5rem 1.5rem; border-radius: 2rem; color: white; font-weight: 600;">
+                    🔐 AES-256 Encryption
+                </span>
+                <span style="background: rgba(255,255,255,0.2); padding: 0.5rem 1.5rem; border-radius: 2rem; color: white; font-weight: 600;">
+                    🚀 GPU Accelerated
+                </span>
+            </div>
+        </div>
         """)
         
         with gr.Tabs():
             # Embed Tab
-            with gr.Tab("📤 Embed Message"):
-                gr.Markdown("### Hide a secret message in an image")
+            with gr.Tab("📤 Embed Message", elem_classes="tab-nav"):
+                gr.Markdown("""
+                <div style="background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%); padding: 1.5rem; border-radius: 0.75rem; margin: 1rem 0; border-left: 5px solid #fdcb6e;">
+                    <h3 style="margin: 0 0 0.5rem 0; color: #2d3436;">💡 How It Works</h3>
+                    <p style="margin: 0; color: #2d3436;">Hide your secret message inside an image using advanced CNN-based adaptive embedding. The message is encrypted and embedded in the least significant bits of the image.</p>
+                </div>
+                """)
                 
                 with gr.Row():
-                    with gr.Column():
+                    with gr.Column(scale=1):
+                        gr.Markdown("### 📸 Step 1: Upload Cover Image")
                         embed_image = gr.Image(
                             label="Cover Image",
                             type="numpy",
-                            height=300
+                            height=350,
+                            elem_classes="image-upload"
                         )
+                        
+                        gr.Markdown("### ✍️ Step 2: Enter Your Secret")
                         embed_message = gr.Textbox(
                             label="Secret Message",
-                            placeholder="Enter your secret message here...",
-                            lines=3
+                            placeholder="Type your secret message here... 🤫",
+                            lines=4,
+                            elem_classes="input-field"
                         )
+                        
+                        gr.Markdown("### 🔑 Step 3: Set Password")
                         embed_password = gr.Textbox(
-                            label="Password (minimum 16 characters)",
-                            placeholder="Enter a strong password...",
-                            type="password"
+                            label="Encryption Password (min 16 characters)",
+                            placeholder="Enter a strong password... 🔐",
+                            type="password",
+                            elem_classes="input-field"
                         )
+                        
+                        gr.Markdown("### 🛡️ Step 4: Choose Protection Level")
                         embed_robustness = gr.Radio(
                             label="Robustness Level",
                             choices=list(ROBUSTNESS_LEVELS.keys()),
-                            value=list(ROBUSTNESS_LEVELS.keys())[0]
+                            value=list(ROBUSTNESS_LEVELS.keys())[0],
+                            elem_classes="input-field"
                         )
-                        embed_button = gr.Button("🔒 Embed Message", variant="primary")
+                        
+                        embed_button = gr.Button(
+                            "🔒 Embed Message Now",
+                            variant="primary",
+                            size="lg",
+                            elem_classes="primary-button"
+                        )
                     
-                    with gr.Column():
+                    with gr.Column(scale=1):
+                        gr.Markdown("### 📥 Your Stego Image")
                         stego_file = gr.File(
-                            label="📥 Download Stego Image (PNG)",
+                            label="Download Stego Image (PNG)",
                             file_count="single"
                         )
-                        psnr_output = gr.Textbox(label="PSNR (Image Quality)", interactive=False)
-                        ssim_output = gr.Textbox(label="SSIM (Structural Similarity)", interactive=False)
-                        capacity_output = gr.Textbox(label="Capacity Usage", interactive=False)
+                        
+                        gr.Markdown("### 📊 Quality Metrics")
+                        psnr_output = gr.Textbox(
+                            label="🎯 PSNR (Peak Signal-to-Noise Ratio)",
+                            interactive=False,
+                            elem_classes="metric-card"
+                        )
+                        ssim_output = gr.Textbox(
+                            label="📈 SSIM (Structural Similarity Index)",
+                            interactive=False,
+                            elem_classes="metric-card"
+                        )
+                        capacity_output = gr.Textbox(
+                            label="💾 Capacity Usage",
+                            interactive=False,
+                            elem_classes="metric-card"
+                        )
+                        
+                        gr.Markdown("""
+                        <div style="background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%); padding: 1.5rem; border-radius: 0.75rem; margin-top: 1rem; color: white;">
+                            <h4 style="margin: 0 0 0.5rem 0;">⚡ Quick Tips</h4>
+                            <ul style="margin: 0; padding-left: 1.5rem;">
+                                <li>Higher PSNR = Better image quality</li>
+                                <li>SSIM closer to 1.0 = More similar to original</li>
+                                <li>Download the PNG file for extraction</li>
+                            </ul>
+                        </div>
+                        """)
                 
                 embed_button.click(
                     fn=embed_interface,
@@ -330,29 +523,59 @@ def create_gradio_app() -> gr.Blocks:
                 )
             
             # Extract Tab
-            with gr.Tab("📥 Extract Message"):
-                gr.Markdown("### Retrieve a hidden message from an image")
+            with gr.Tab("📥 Extract Message", elem_classes="tab-nav"):
+                gr.Markdown("""
+                <div style="background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%); padding: 1.5rem; border-radius: 0.75rem; margin: 1rem 0; border-left: 5px solid #6c5ce7; color: white;">
+                    <h3 style="margin: 0 0 0.5rem 0;">🔓 Reveal Hidden Messages</h3>
+                    <p style="margin: 0;">Upload the stego image and enter the password to extract the hidden message. Make sure to use the original PNG file!</p>
+                </div>
+                """)
                 
                 with gr.Row():
-                    with gr.Column():
+                    with gr.Column(scale=1):
+                        gr.Markdown("### 📤 Step 1: Upload Stego Image")
                         extract_image = gr.Image(
-                            label="Stego Image (Upload the downloaded PNG file)",
+                            label="Stego Image (Upload the PNG file you downloaded)",
                             type="numpy",
-                            height=300
+                            height=400,
+                            elem_classes="image-upload"
                         )
+                        
+                        gr.Markdown("### 🔑 Step 2: Enter Password")
                         extract_password = gr.Textbox(
-                            label="Password",
-                            placeholder="Enter the password used during embedding...",
-                            type="password"
+                            label="Decryption Password",
+                            placeholder="Enter the password used during embedding... 🔐",
+                            type="password",
+                            elem_classes="input-field"
                         )
-                        extract_button = gr.Button("🔓 Extract Message", variant="primary")
+                        
+                        extract_button = gr.Button(
+                            "🔓 Extract Message Now",
+                            variant="primary",
+                            size="lg",
+                            elem_classes="primary-button"
+                        )
+                        
+                        gr.Markdown("""
+                        <div style="background: linear-gradient(135deg, #fd79a8 0%, #e84393 100%); padding: 1.5rem; border-radius: 0.75rem; margin-top: 1rem; color: white;">
+                            <h4 style="margin: 0 0 0.5rem 0;">⚠️ Important</h4>
+                            <ul style="margin: 0; padding-left: 1.5rem;">
+                                <li>Use the original PNG file</li>
+                                <li>Don't take screenshots</li>
+                                <li>Don't re-save or edit the image</li>
+                                <li>Password must match exactly</li>
+                            </ul>
+                        </div>
+                        """)
                     
-                    with gr.Column():
+                    with gr.Column(scale=1):
+                        gr.Markdown("### 💬 Extracted Message")
                         extract_output = gr.Textbox(
-                            label="Extracted Message",
-                            placeholder="The hidden message will appear here...",
-                            lines=10,
-                            interactive=False
+                            label="Hidden Message",
+                            placeholder="Your secret message will appear here... 🎉",
+                            lines=15,
+                            interactive=False,
+                            elem_classes="input-field"
                         )
                 
                 extract_button.click(
@@ -360,43 +583,110 @@ def create_gradio_app() -> gr.Blocks:
                     inputs=[extract_image, extract_password],
                     outputs=extract_output
                 )
-        
-        gr.Markdown("""
-        ---
-        ### 📖 Usage Instructions
-        
-        **Embedding:**
-        1. Upload a cover image (PNG, JPEG, or BMP, minimum 256×256 pixels)
-        2. Enter your secret message
-        3. Create a strong password (minimum 16 characters)
-        4. Select robustness level based on your needs
-        5. Click "Embed Message" and **download the PNG file**
-        
-        **Extraction:**
-        1. **Upload the downloaded PNG file** (not a screenshot!)
-        2. Enter the same password used during embedding
-        3. Click "Extract Message" to reveal the hidden text
-        
-        **Robustness Levels:**
-        - **None (0)**: Best quality, no attack resistance
-        - **Low (1)**: Light error correction, resists minor JPEG compression
-        - **Medium (2)**: Moderate protection with 3× replication
-        - **High (3)**: Maximum protection with 5× replication, resists JPEG, resizing, noise
-        
-        ---
-        
-        **⚠️ Important Notes:**
-        - Keep your password secure - it cannot be recovered if lost
-        - Higher robustness levels reduce available capacity
-        - **CRITICAL**: You must download and use the PNG file for extraction - do not take screenshots or re-save the image
-        - LSB steganography does NOT increase file size (it modifies existing pixels)
-        - This is a research prototype - use at your own risk
-        
-        **🔗 Links:**
-        - [GitHub Repository](https://github.com/yourusername/pixelnur)
-        - [Documentation](https://github.com/yourusername/pixelnur/blob/main/README.md)
-        - [Report Issues](https://github.com/yourusername/pixelnur/issues)
-        """)
+            
+            # Help Tab
+            with gr.Tab("📖 Help & Info", elem_classes="tab-nav"):
+                gr.Markdown("""
+                <div style="max-width: 900px; margin: 0 auto;">
+                    
+                ## 🎯 What is PixelNur?
+                
+                PixelNur is an advanced steganography system that hides secret messages inside images using CNN-based adaptive embedding. It combines:
+                - **Lifting Wavelet Transform (LWT)** for frequency domain embedding
+                - **CNN-based capacity estimation** for optimal bit allocation
+                - **AES-256 encryption** for message security
+                - **Configurable robustness** against attacks
+                
+                ---
+                
+                ## 🚀 Quick Start Guide
+                
+                ### Embedding a Message
+                1. **Upload** a cover image (PNG, JPEG, or BMP)
+                2. **Type** your secret message
+                3. **Create** a strong password (minimum 16 characters)
+                4. **Select** robustness level based on your needs
+                5. **Click** "Embed Message" and download the PNG file
+                
+                ### Extracting a Message
+                1. **Upload** the stego image (the PNG file you downloaded)
+                2. **Enter** the same password used during embedding
+                3. **Click** "Extract Message" to reveal the hidden text
+                
+                ---
+                
+                ## 🛡️ Robustness Levels Explained
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 1.5rem 0;">
+                    <div style="background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%); padding: 1.5rem; border-radius: 0.75rem;">
+                        <h3 style="margin: 0 0 0.5rem 0;">🌟 None (Level 0)</h3>
+                        <p style="margin: 0;"><strong>Best for:</strong> Maximum quality<br><strong>Protection:</strong> None<br><strong>Capacity:</strong> Highest</p>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%); padding: 1.5rem; border-radius: 0.75rem; color: white;">
+                        <h3 style="margin: 0 0 0.5rem 0;">🛡️ Low (Level 1)</h3>
+                        <p style="margin: 0;"><strong>Best for:</strong> Light protection<br><strong>Protection:</strong> Minor JPEG<br><strong>Capacity:</strong> High</p>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%); padding: 1.5rem; border-radius: 0.75rem; color: white;">
+                        <h3 style="margin: 0 0 0.5rem 0;">🔒 Medium (Level 2)</h3>
+                        <p style="margin: 0;"><strong>Best for:</strong> Balanced use<br><strong>Protection:</strong> 3× replication<br><strong>Capacity:</strong> Medium</p>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #fd79a8 0%, #e84393 100%); padding: 1.5rem; border-radius: 0.75rem; color: white;">
+                        <h3 style="margin: 0 0 0.5rem 0;">🔐 High (Level 3)</h3>
+                        <p style="margin: 0;"><strong>Best for:</strong> Maximum security<br><strong>Protection:</strong> 5× replication<br><strong>Capacity:</strong> Lower</p>
+                    </div>
+                </div>
+                
+                ---
+                
+                ## ⚠️ Important Notes
+                
+                <div style="background: linear-gradient(135deg, #ff7675 0%, #d63031 100%); padding: 1.5rem; border-radius: 0.75rem; color: white; margin: 1rem 0;">
+                    <h3 style="margin: 0 0 1rem 0;">🚨 Critical Requirements</h3>
+                    <ul style="margin: 0; padding-left: 1.5rem;">
+                        <li><strong>Always download the PNG file</strong> - Don't take screenshots!</li>
+                        <li><strong>Never re-save or edit</strong> the stego image</li>
+                        <li><strong>Keep your password secure</strong> - It cannot be recovered if lost</li>
+                        <li><strong>Use the original file</strong> for extraction</li>
+                    </ul>
+                </div>
+                
+                ---
+                
+                ## 📊 Technical Specifications
+                
+                - **Image Quality:** PSNR >40 dB, SSIM >0.99
+                - **Encryption:** SHA-256 + XOR cipher
+                - **Transform:** Lifting Wavelet Transform (LWT)
+                - **Embedding:** LSB matching in frequency domain
+                - **Capacity:** Adaptive based on CNN estimation
+                - **Processing:** GPU-accelerated (CUDA/CPU fallback)
+                
+                ---
+                
+                ## 🔗 Links & Resources
+                
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin: 1.5rem 0;">
+                    <a href="https://github.com/rushikeshxdev/pixelnur" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1rem 2rem; border-radius: 0.5rem; text-decoration: none; font-weight: 600;">
+                        📦 GitHub Repository
+                    </a>
+                    <a href="https://github.com/rushikeshxdev/pixelnur/blob/main/README.md" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1rem 2rem; border-radius: 0.5rem; text-decoration: none; font-weight: 600;">
+                        📚 Documentation
+                    </a>
+                                        <a href="https://github.com/rushikeshxdev/pixelnur/issues" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1rem 2rem; border-radius: 0.5rem; text-decoration: none; font-weight: 600;">
+                        🐛 Report Issues
+                    </a>
+                </div>
+                
+                ---
+                
+                <div style="background: linear-gradient(135deg, #55efc4 0%, #00b894 100%); padding: 1.5rem; border-radius: 0.75rem; margin: 1rem 0; color: white; text-align: center;">
+                    <p style="margin: 0; font-size: 0.9rem;">
+                        ⚡ Powered by PixelNur Phase 2 | Built with ❤️ for Privacy
+                    </p>
+                </div>
+                
+                </div>
+                """)
     
     return app
 
@@ -405,3 +695,4 @@ def create_gradio_app() -> gr.Blocks:
 if __name__ == "__main__":
     app = create_gradio_app()
     app.launch()
+
