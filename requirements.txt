@@ -1,13 +1,13 @@
-# PixelNur Phase 2 - Python Dependencies
-# This file includes all dependencies for the project
+# PixelNur Phase 2 - Hugging Face Spaces Dependencies
+# Optimized for deployment on Hugging Face Spaces
 
-# Gradio Web Interface (for Hugging Face Spaces deployment)
-gradio>=4.0.0
+# Gradio Web Interface - Using stable version 5.x
+gradio>=5.0.0
 
 # Core Dependencies
 numpy>=1.24.0
 scipy>=1.10.0
-opencv-python>=4.8.0
+opencv-python-headless>=4.8.0
 torch>=2.0.0
 torchvision>=0.15.0
 Pillow>=10.0.0
@@ -23,30 +23,3 @@ pycryptodome>=3.18.0
 
 # Image Processing
 scikit-image>=0.21.0
-
-# Web Framework (for local development)
-Flask>=2.3.0
-flask-cors>=4.0.0
-
-# Development Tools
-black>=23.0.0
-isort>=5.12.0
-pylint>=2.17.0
-mypy>=1.4.0
-
-# Testing
-pytest>=7.4.0
-pytest-cov>=4.1.0
-
-# Optional: Caching (for production)
-# redis>=4.6.0
-
-# Optional: Database (for user management)
-# psycopg2-binary>=2.9.0
-# SQLAlchemy>=2.0.0
-
-# Optional: Monitoring
-# prometheus-client>=0.17.0
-
-# Note: For GPU support with CUDA 11.8, install PyTorch first:
-# pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
