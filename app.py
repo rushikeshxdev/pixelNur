@@ -1,5 +1,5 @@
 """
-PixelNur Phase 2 - Gradio Interface for Hugging Face Spaces
+PixelNur - Gradio Interface for Hugging Face Spaces
 
 This module provides a web interface for the PixelNur steganography system
 using Gradio. It exposes embedding and extraction functionality through
@@ -42,22 +42,13 @@ ROBUSTNESS_LEVELS = {
 
 MIN_PASSWORD_LENGTH = 16
 MIN_IMAGE_SIZE = 256
-MAX_IMAGE_SIZE = 2048  # For Gradio deployment
+MAX_IMAGE_SIZE = 2048
 
-# Custom CSS for beautiful UI
+# Custom CSS for beautiful UI with better contrast
 CUSTOM_CSS = """
 /* Main container styling */
 .gradio-container {
     font-family: 'Inter', 'Segoe UI', sans-serif !important;
-}
-
-/* Header gradient */
-.header-gradient {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 2rem;
-    border-radius: 1rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
 }
 
 /* Tab styling */
@@ -113,55 +104,24 @@ CUSTOM_CSS = """
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* Image upload area */
+/* Image upload area - IMPROVED CONTRAST */
 .image-upload {
     border: 3px dashed #667eea !important;
     border-radius: 1rem !important;
-    background: linear-gradient(135deg, #f5f7fa 0%, #e0e7ff 100%) !important;
+    background: #ffffff !important;
     transition: all 0.3s ease !important;
 }
 
 .image-upload:hover {
     border-color: #764ba2 !important;
-    background: linear-gradient(135deg, #e0e7ff 0%, #f5f7fa 100%) !important;
+    background: #f8f9fa !important;
 }
 
-/* Info box styling */
-.info-box {
-    background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
-    padding: 1.5rem;
-    border-radius: 0.75rem;
-    border-left: 5px solid #fdcb6e;
-    margin: 1rem 0;
-    box-shadow: 0 4px 15px rgba(253, 203, 110, 0.3);
-}
-
-/* Success message */
-.success-box {
-    background: linear-gradient(135deg, #55efc4 0%, #00b894 100%);
-    color: white;
-    padding: 1rem;
-    border-radius: 0.5rem;
-    margin: 0.5rem 0;
-}
-
-/* Feature badge */
-.feature-badge {
-    display: inline-block;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 2rem;
-    margin: 0.25rem;
-    font-weight: 600;
-    font-size: 0.9rem;
-}
-
-/* Accordion styling */
-.accordion {
-    border-radius: 0.75rem !important;
-    overflow: hidden !important;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
+/* Make sure upload text is visible */
+.image-upload label,
+.image-upload span,
+.image-upload div {
+    color: #2d3436 !important;
 }
 """
 
@@ -181,15 +141,7 @@ except Exception as e:
 
 
 def _validate_image(image: np.ndarray) -> Tuple[bool, str]:
-    """
-    Validate image format and dimensions.
-    
-    Args:
-        image: Input image as numpy array
-        
-    Returns:
-        Tuple of (is_valid, error_message)
-    """
+    """Validate image format and dimensions."""
     if image is None or image.size == 0:
         return False, "No image provided. Please upload a valid image."
     
@@ -207,15 +159,7 @@ def _validate_image(image: np.ndarray) -> Tuple[bool, str]:
 
 
 def _validate_password(password: str) -> Tuple[bool, str]:
-    """
-    Validate password meets minimum requirements.
-    
-    Args:
-        password: Password string
-        
-    Returns:
-        Tuple of (is_valid, error_message)
-    """
+    """Validate password meets minimum requirements."""
     if not password:
         return False, "Password is required."
     
@@ -226,15 +170,7 @@ def _validate_password(password: str) -> Tuple[bool, str]:
 
 
 def _parse_robustness_level(level_str: str) -> str:
-    """
-    Convert UI string to robustness level value.
-    
-    Args:
-        level_str: Robustness level string from UI dropdown
-        
-    Returns:
-        Robustness level value ('none', 'low', 'medium', 'high')
-    """
+    """Convert UI string to robustness level value."""
     return ROBUSTNESS_LEVELS.get(level_str, "none")
 
 
@@ -244,20 +180,8 @@ def embed_interface(
     password: str,
     robustness_level: str
 ) -> Tuple[Optional[str], str, str, str]:
-    """
-    Gradio interface function for embedding.
-    
-    Args:
-        cover_image: Cover image from Gradio Image component (RGB)
-        message: Secret message text
-        password: Encryption password
-        robustness_level: Robustness level string from dropdown
-    
-    Returns:
-        Tuple of (stego_file_path, psnr_text, ssim_text, capacity_text)
-    """
+    """Gradio interface function for embedding."""
     try:
-        # Validate inputs
         valid, error = _validate_image(cover_image)
         if not valid:
             return None, f"❌ {error}", "", ""
@@ -269,10 +193,7 @@ def embed_interface(
         if not valid:
             return None, f"❌ {error}", "", ""
         
-        # Convert RGB to BGR for OpenCV
         cover_bgr = cv2.cvtColor(cover_image, cv2.COLOR_RGB2BGR)
-        
-        # Parse robustness level
         robustness_value = _parse_robustness_level(robustness_level)
         
         logger.info(
@@ -280,7 +201,6 @@ def embed_interface(
             f"message_length={len(message)}, robustness_level={robustness_value}"
         )
         
-        # Embed message
         stego_bgr, metrics = pixelnur.embed_message(
             cover_image=cover_bgr,
             message=message,
@@ -289,11 +209,9 @@ def embed_interface(
             check_capacity=True
         )
         
-        # Save as PNG file to preserve LSB data
         output_path = os.path.join(tempfile.gettempdir(), "pixelnur_stego.png")
         cv2.imwrite(output_path, stego_bgr)
         
-        # Format outputs
         psnr_text = f"✅ PSNR: {metrics['psnr']:.2f} dB"
         ssim_text = f"✅ SSIM: {metrics['ssim']:.4f}"
         capacity_text = (
@@ -302,10 +220,7 @@ def embed_interface(
             f"({metrics['capacity_utilization']:.1f}% used)"
         )
         
-        logger.info(
-            f"Embed success: psnr={metrics['psnr']:.2f}, "
-            f"ssim={metrics['ssim']:.4f}, saved to={output_path}"
-        )
+        logger.info(f"Embed success: psnr={metrics['psnr']:.2f}, ssim={metrics['ssim']:.4f}")
         
         return output_path, psnr_text, ssim_text, capacity_text
         
@@ -322,22 +237,9 @@ def embed_interface(
         return None, "❌ An unexpected error occurred. Please try again.", "", ""
 
 
-def extract_interface(
-    stego_image: np.ndarray,
-    password: str
-) -> str:
-    """
-    Gradio interface function for extraction.
-    
-    Args:
-        stego_image: Stego image from Gradio Image component (RGB)
-        password: Encryption password
-    
-    Returns:
-        Extracted message text or error message
-    """
+def extract_interface(stego_image: np.ndarray, password: str) -> str:
+    """Gradio interface function for extraction."""
     try:
-        # Validate inputs
         valid, error = _validate_image(stego_image)
         if not valid:
             return f"❌ {error}"
@@ -346,24 +248,16 @@ def extract_interface(
         if not valid:
             return f"❌ {error}"
         
-        # Convert RGB to BGR for OpenCV
         stego_bgr = cv2.cvtColor(stego_image, cv2.COLOR_RGB2BGR)
         
         logger.info(f"Extract request: image_shape={stego_image.shape}")
         
-        # Extract encrypted message
         encrypted_message = extraction_engine.extract(
             stego_image=stego_bgr,
-            cover_image=None  # Blind extraction
+            cover_image=None
         )
         
-        # Decrypt message
-        message_bytes = encryption_service.decrypt(
-            encrypted_message,
-            password
-        )
-        
-        # Decode to string
+        message_bytes = encryption_service.decrypt(encrypted_message, password)
         message = message_bytes.decode('utf-8')
         
         logger.info(f"Extract success: message_length={len(message)}")
@@ -386,20 +280,14 @@ def extract_interface(
 
 
 def create_gradio_app() -> gr.Blocks:
-    """
-    Create and configure the Gradio interface.
-    
-    Returns:
-        Gradio Blocks app ready to launch
-    """
+    """Create and configure the Gradio interface."""
     
     with gr.Blocks(title="PixelNur - Advanced Steganography") as app:
         
-        # Header
         gr.Markdown("""
         <div style="text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 3rem 2rem; border-radius: 1rem; margin-bottom: 2rem; box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);">
             <h1 style="color: white; font-size: 3rem; margin-bottom: 1rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.2);">
-                🔒 PixelNur Phase 2
+                🔒 PixelNur
             </h1>
             <p style="color: rgba(255,255,255,0.95); font-size: 1.3rem; margin-bottom: 1.5rem;">
                 Advanced CNN-Based Steganography System
@@ -422,12 +310,11 @@ def create_gradio_app() -> gr.Blocks:
         """)
         
         with gr.Tabs():
-            # Embed Tab
             with gr.Tab("📤 Embed Message", elem_classes="tab-nav"):
                 gr.Markdown("""
                 <div style="background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%); padding: 1.5rem; border-radius: 0.75rem; margin: 1rem 0; border-left: 5px solid #fdcb6e;">
                     <h3 style="margin: 0 0 0.5rem 0; color: #2d3436;">💡 How It Works</h3>
-                    <p style="margin: 0; color: #2d3436;">Hide your secret message inside an image using advanced CNN-based adaptive embedding. The message is encrypted and embedded in the least significant bits of the image.</p>
+                    <p style="margin: 0; color: #2d3436;">Hide your secret message inside an image using advanced CNN-based adaptive embedding.</p>
                 </div>
                 """)
                 
@@ -513,12 +400,11 @@ def create_gradio_app() -> gr.Blocks:
                     outputs=[stego_file, psnr_output, ssim_output, capacity_output]
                 )
             
-            # Extract Tab
             with gr.Tab("📥 Extract Message", elem_classes="tab-nav"):
                 gr.Markdown("""
                 <div style="background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%); padding: 1.5rem; border-radius: 0.75rem; margin: 1rem 0; border-left: 5px solid #6c5ce7; color: white;">
                     <h3 style="margin: 0 0 0.5rem 0;">🔓 Reveal Hidden Messages</h3>
-                    <p style="margin: 0;">Upload the stego image and enter the password to extract the hidden message. Make sure to use the original PNG file!</p>
+                    <p style="margin: 0;">Upload the stego image and enter the password to extract the hidden message.</p>
                 </div>
                 """)
                 
@@ -575,71 +461,29 @@ def create_gradio_app() -> gr.Blocks:
                     outputs=extract_output
                 )
             
-            # Help Tab
             with gr.Tab("📖 Help & Info", elem_classes="tab-nav"):
                 gr.Markdown("""
                 <div style="max-width: 900px; margin: 0 auto;">
                     
                 ## 🎯 What is PixelNur?
                 
-                PixelNur is an advanced steganography system that hides secret messages inside images using CNN-based adaptive embedding. It combines:
-                - **Lifting Wavelet Transform (LWT)** for frequency domain embedding
-                - **CNN-based capacity estimation** for optimal bit allocation
-                - **AES-256 encryption** for message security
-                - **Configurable robustness** against attacks
+                PixelNur is an advanced steganography system that hides secret messages inside images using CNN-based adaptive embedding.
                 
                 ---
                 
                 ## 🚀 Quick Start Guide
                 
                 ### Embedding a Message
-                1. **Upload** a cover image (PNG, JPEG, or BMP)
-                2. **Type** your secret message
-                3. **Create** a strong password (minimum 16 characters)
-                4. **Select** robustness level based on your needs
-                5. **Click** "Embed Message" and download the PNG file
+                1. Upload a cover image (PNG, JPEG, or BMP)
+                2. Type your secret message
+                3. Create a strong password (minimum 16 characters)
+                4. Select robustness level
+                5. Click "Embed Message" and download the PNG file
                 
                 ### Extracting a Message
-                1. **Upload** the stego image (the PNG file you downloaded)
-                2. **Enter** the same password used during embedding
-                3. **Click** "Extract Message" to reveal the hidden text
-                
-                ---
-                
-                ## 🛡️ Robustness Levels Explained
-                
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 1.5rem 0;">
-                    <div style="background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%); padding: 1.5rem; border-radius: 0.75rem;">
-                        <h3 style="margin: 0 0 0.5rem 0;">🌟 None (Level 0)</h3>
-                        <p style="margin: 0;"><strong>Best for:</strong> Maximum quality<br><strong>Protection:</strong> None<br><strong>Capacity:</strong> Highest</p>
-                    </div>
-                    <div style="background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%); padding: 1.5rem; border-radius: 0.75rem; color: white;">
-                        <h3 style="margin: 0 0 0.5rem 0;">🛡️ Low (Level 1)</h3>
-                        <p style="margin: 0;"><strong>Best for:</strong> Light protection<br><strong>Protection:</strong> Minor JPEG<br><strong>Capacity:</strong> High</p>
-                    </div>
-                    <div style="background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%); padding: 1.5rem; border-radius: 0.75rem; color: white;">
-                        <h3 style="margin: 0 0 0.5rem 0;">🔒 Medium (Level 2)</h3>
-                        <p style="margin: 0;"><strong>Best for:</strong> Balanced use<br><strong>Protection:</strong> 3× replication<br><strong>Capacity:</strong> Medium</p>
-                    </div>
-                    <div style="background: linear-gradient(135deg, #fd79a8 0%, #e84393 100%); padding: 1.5rem; border-radius: 0.75rem; color: white;">
-                        <h3 style="margin: 0 0 0.5rem 0;">🔐 High (Level 3)</h3>
-                        <p style="margin: 0;"><strong>Best for:</strong> Maximum security<br><strong>Protection:</strong> 5× replication<br><strong>Capacity:</strong> Lower</p>
-                    </div>
-                </div>
-                
-                ---
-                
-                ## ⚠️ Important Notes
-                
-                <div style="background: linear-gradient(135deg, #ff7675 0%, #d63031 100%); padding: 1.5rem; border-radius: 0.75rem; color: white; margin: 1rem 0;">
-                    <h3 style="margin: 0 0 1rem 0;">🚨 Critical Requirements</h3>
-                    <ul style="margin: 0; padding-left: 1.5rem;">
-                        <li><strong>Always download the PNG file</strong> - Don't take screenshots!</li>
-                        <li><strong>Never re-save or edit</strong> the stego image</li>
-                        <li><strong>Keep your password secure</strong> - It cannot be recovered if lost</li>
-                        <li><strong>Use the original file</strong> for extraction</li>
-                    </ul>
-                </div>
+                1. Upload the stego image (the PNG file you downloaded)
+                2. Enter the same password used during embedding
+                3. Click "Extract Message" to reveal the hidden text
                 
                 ---
                 
@@ -657,13 +501,13 @@ def create_gradio_app() -> gr.Blocks:
                 ## 🔗 Links & Resources
                 
                 <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin: 1.5rem 0;">
-                    <a href="https://github.com/rushikeshxdev/pixelnur" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1rem 2rem; border-radius: 0.5rem; text-decoration: none; font-weight: 600;">
+                    <a href="https://github.com/rushikeshxdev/pixelnur" target="_blank" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1rem 2rem; border-radius: 0.5rem; text-decoration: none; font-weight: 600;">
                         📦 GitHub Repository
                     </a>
-                    <a href="https://github.com/rushikeshxdev/pixelnur/blob/main/README.md" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1rem 2rem; border-radius: 0.5rem; text-decoration: none; font-weight: 600;">
+                    <a href="https://github.com/rushikeshxdev/pixelnur/blob/main/README.md" target="_blank" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1rem 2rem; border-radius: 0.5rem; text-decoration: none; font-weight: 600;">
                         📚 Documentation
                     </a>
-                                        <a href="https://github.com/rushikeshxdev/pixelnur/issues" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1rem 2rem; border-radius: 0.5rem; text-decoration: none; font-weight: 600;">
+                    <a href="https://github.com/rushikeshxdev/pixelnur/issues" target="_blank" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1rem 2rem; border-radius: 0.5rem; text-decoration: none; font-weight: 600;">
                         🐛 Report Issues
                     </a>
                 </div>
@@ -672,7 +516,7 @@ def create_gradio_app() -> gr.Blocks:
                 
                 <div style="background: linear-gradient(135deg, #55efc4 0%, #00b894 100%); padding: 1.5rem; border-radius: 0.75rem; margin: 1rem 0; color: white; text-align: center;">
                     <p style="margin: 0; font-size: 0.9rem;">
-                        ⚡ Powered by PixelNur Phase 2 | Built with ❤️ for Privacy
+                        ⚡ Powered by PixelNur | Built with ❤️ for Privacy
                     </p>
                 </div>
                 
@@ -682,16 +526,6 @@ def create_gradio_app() -> gr.Blocks:
     return app
 
 
-# Launch the app
 if __name__ == "__main__":
     app = create_gradio_app()
-    app.launch(
-        theme=gr.themes.Soft(
-            primary_hue="indigo",
-            secondary_hue="purple",
-            neutral_hue="slate"
-        ),
-        css=CUSTOM_CSS
-    )
-
-
+    app.launch(css=CUSTOM_CSS)
