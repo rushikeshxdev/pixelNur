@@ -237,18 +237,21 @@ def embed_interface(
         return None, "❌ An unexpected error occurred. Please try again.", "", ""
 
 
-def extract_interface(stego_image: np.ndarray, password: str) -> str:
+def extract_interface(stego_file: str, password: str) -> str:
     """Gradio interface function for extraction."""
     try:
-        valid, error = _validate_image(stego_image)
-        if not valid:
-            return f"❌ {error}"
+        if not stego_file:
+            return "❌ Please upload a stego image file."
+        
+        # Read image directly from file to avoid Gradio conversion
+        stego_bgr = cv2.imread(stego_file)
+        
+        if stego_bgr is None:
+            return "❌ Failed to read image file. Please upload a valid PNG file."
         
         valid, error = _validate_password(password)
         if not valid:
             return f"❌ {error}"
-        
-        stego_bgr = cv2.cvtColor(stego_image, cv2.COLOR_RGB2BGR)
         
         logger.info(f"Extract request: image_shape={stego_image.shape}")
         
@@ -411,13 +414,12 @@ def create_gradio_app() -> gr.Blocks:
                 with gr.Row():
                     with gr.Column(scale=1):
                         gr.Markdown("### 📤 Step 1: Upload Stego Image")
-                        extract_image = gr.Image(
-                            label="Stego Image (Upload the PNG file you downloaded)",
-                            type="numpy",
-                            height=400,
-                            elem_classes="image-upload"
+                        extract_image = gr.File(
+                            label="📤 Stego Image File (Upload the PNG file you downloaded)",
+                            file_types=[".png"],
+                            type="filepath"
                         )
-                        
+
                         gr.Markdown("### 🔑 Step 2: Enter Password")
                         extract_password = gr.Textbox(
                             label="Decryption Password",
@@ -437,10 +439,10 @@ def create_gradio_app() -> gr.Blocks:
                         <div style="background: linear-gradient(135deg, #fd79a8 0%, #e84393 100%); padding: 1.5rem; border-radius: 0.75rem; margin-top: 1rem; color: white;">
                             <h4 style="margin: 0 0 0.5rem 0;">⚠️ Important</h4>
                             <ul style="margin: 0; padding-left: 1.5rem;">
-                                <li>Use the original PNG file</li>
-                                <li>Don't take screenshots</li>
+                                <li><strong>Upload the PNG file directly</strong> (not a screenshot)</li>
                                 <li>Don't re-save or edit the image</li>
                                 <li>Password must match exactly</li>
+                                <li>File must be the original downloaded PNG</li>
                             </ul>
                         </div>
                         """)
