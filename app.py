@@ -253,7 +253,7 @@ def extract_interface(stego_file: str, password: str) -> str:
         if not valid:
             return f"❌ {error}"
         
-        logger.info(f"Extract request: image_shape={stego_image.shape}")
+        logger.info(f"Extract request: image_shape={stego_bgr.shape}, file={stego_file}")
         
         encrypted_message = extraction_engine.extract(
             stego_image=stego_bgr,
