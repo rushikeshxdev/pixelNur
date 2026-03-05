@@ -859,14 +859,15 @@ class ExtractionEngine:
         
         # Extract header from LH2 sub-band (first 48 bits)
         lh2_coeffs = coeffs.LH2
-        header_bits = self._extract_bits_from_coefficients(lh2_coeffs, 48)
+        header_bits = self._extract_bits_from_coefficients(lh2_coeffs, 56)
         
         # Convert bits to bytes
         header_bytes = self._bits_to_bytes(header_bits)
         
-        # Parse header
+        # Parse header: Version (4 bytes) + Robustness (1 byte) + Length (2 bytes)
         version_bytes = header_bytes[0:4]
-        length_bytes = header_bytes[4:6]
+        robustness_byte = header_bytes[4]
+        length_bytes = header_bytes[5:7]
         
         # Decode version string
         try:
@@ -884,6 +885,15 @@ class ExtractionEngine:
                 f"Supported versions: {', '.join(self.supported_versions)}"
             )
         
+        # Decode robustness level
+        robustness_map = {
+            0x00: 'none',
+            0x01: 'low',
+            0x02: 'medium',
+            0x03: 'high'
+        }
+        robustness_level = robustness_map.get(robustness_byte, 'none')
+        
         # Decode message length
         message_length = struct.unpack('>H', length_bytes)[0]
         
@@ -899,7 +909,7 @@ class ExtractionEngine:
             )
         
         # Robustness level will be added in Task 8.5
-        robustness_level = None
+        #robustness_level = None
         
         return version_string, message_length, robustness_level
     
