@@ -210,14 +210,15 @@ def embed_interface(
         )
         
         output_path = os.path.join(tempfile.gettempdir(), "pixelnur_stego.png")
-        cv2.imwrite(output_path, stego_bgr)
+        cv2.imwrite(output_path, stego_bgr, [cv2.IMWRITE_PNG_COMPRESSION, 0])
         
         psnr_text = f"✅ PSNR: {metrics['psnr']:.2f} dB"
         ssim_text = f"✅ SSIM: {metrics['ssim']:.4f}"
         capacity_text = (
             f"✅ Capacity: {metrics['capacity_used_bytes']} / "
             f"{metrics['capacity_available_bytes']} bytes "
-            f"({metrics['capacity_utilization']:.1f}% used)"
+            f"({metrics['capacity_utilization']:.1f}% used)\n"
+            f"📁 Format: PNG (lossless, preserves hidden data)"
         )
         
         logger.info(f"Embed success: psnr={metrics['psnr']:.2f}, ssim={metrics['ssim']:.4f}")
@@ -315,10 +316,16 @@ def create_gradio_app() -> gr.Blocks:
         with gr.Tabs():
             with gr.Tab("📤 Embed Message", elem_classes="tab-nav"):
                 gr.Markdown("""
-                <div style="background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%); padding: 1.5rem; border-radius: 0.75rem; margin: 1rem 0; border-left: 5px solid #fdcb6e;">
-                    <h3 style="margin: 0 0 0.5rem 0; color: #2d3436;">💡 How It Works</h3>
-                    <p style="margin: 0; color: #2d3436;">Hide your secret message inside an image using advanced CNN-based adaptive embedding.</p>
+                <div style="background: linear-gradient(135deg, #fd79a8 0%, #e84393 100%); padding: 1.5rem; border-radius: 0.75rem; margin-top: 1rem; color: white;">
+                    <h4 style="margin: 0 0 0.5rem 0;">⚠️ Important</h4>
+                    <ul style="margin: 0; padding-left: 1.5rem;">
+                        <li><strong>Stego images are always saved as PNG</strong> to preserve hidden data</li>
+                        <li><strong>Upload the PNG file directly</strong> (not a screenshot)</li>
+                        <li>Don't re-save, edit, or compress the image</li>
+                        <li>Password must match exactly</li>
+                    </ul>
                 </div>
+
                 """)
                 
                 with gr.Row():
