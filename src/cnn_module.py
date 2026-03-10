@@ -46,8 +46,6 @@ class CNNModule:
     INPUT_SIZE = 512  # Standard input size for CNN
     THRESHOLD = 0.5   # Binary threshold for mask generation
     MASK_VALIDITY_THRESHOLD = 5.0  # Threshold for handling invalid CNN masks
-    
-    def __init__(
         self,
         model_path: Optional[str] = None,
         device: Optional[str] = None,
@@ -254,8 +252,6 @@ class CNNModule:
         # Apply threshold to create binary mask
         binary_mask = (mask_resized >= threshold).astype(np.uint8)
         
-        return binary_mask
-    
     def _generate_sobel_fallback_mask(
         self,
         cover_image: np.ndarray,
@@ -302,6 +298,7 @@ class CNNModule:
         
         return binary_mask
     
+    def generate_mask(
     def generate_mask(
         self,
         cover_image: np.ndarray,
@@ -376,6 +373,7 @@ class CNNModule:
                 threshold=0.7
             )
         
+        return binary_mask
         return binary_mask
     
     def save_checkpoint(self, save_path: str, metadata: Optional[dict] = None) -> None:
