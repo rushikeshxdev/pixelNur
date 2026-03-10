@@ -1,16 +1,5 @@
----
-title: PixelNur - CNN-Based Steganography
-emoji: 🔒
-colorFrom: blue
-colorTo: purple
-sdk: gradio
-app_file: app.py
-pinned: false
-license: mit
----
-
 <div align="center">
-
+  
 # 🔒 PixelNur
 ### Advanced CNN-Based Steganography System
 *Hide secret messages inside images with military-grade encryption*
